@@ -2,16 +2,32 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'entity.g.dart';
 
+/// 已安装应用
 @JsonSerializable()
 class InstallApp {
-  String? name; // 软件名
-  String? displayName; // 显示名称
-  String? publisher; // 发布者
-  String? installDate; // 安装日期
-  String? estimatedSize; // 大小
-  String? displayVersion; // 版本String
-  String? displayIcon; //icon
-  String? installLocation; //安装位置
+  /// 软件名
+  String? name;
+
+  /// 显示名称
+  String? displayName;
+
+  /// 发布者
+  String? publisher;
+
+  /// 安装日期
+  String? installDate;
+
+  /// 大小
+  String? estimatedSize;
+
+  /// 版本String
+  String? displayVersion;
+
+  /// icon
+  String? displayIcon;
+
+  /// 安装位置
+  String? installLocation;
 
   InstallApp(
       {this.name,

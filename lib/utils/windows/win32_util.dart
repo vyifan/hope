@@ -4,13 +4,6 @@ import 'package:win32/win32.dart';
 
 import 'entity.dart';
 
-void main(List<String> args) {
-  RegistryUtil.getInstalledApps();
-  RegistryUtil.installApps.forEach((key, value) {
-    print(value.toJson());
-  });
-}
-
 class RegistryUtil {
   static const maxItemLength = 1024;
   static const regKey = r'SoftWare\Microsoft\Windows\CurrentVersion\Uninstall';
@@ -59,19 +52,11 @@ class RegistryUtil {
 
   static String? _enumerateKeyList(int hKey, int index) {
     final lpValueName = wsalloc(MAX_PATH);
-    final lpcchValueName = calloc<DWORD>()
-      ..value = MAX_PATH;
+    final lpcchValueName = calloc<DWORD>()..value = MAX_PATH;
 
     try {
-      final status = RegEnumKeyEx(
-          hKey,
-          index,
-          lpValueName,
-          lpcchValueName,
-          nullptr,
-          nullptr,
-          nullptr,
-          nullptr);
+      final status = RegEnumKeyEx(hKey, index, lpValueName, lpcchValueName,
+          nullptr, nullptr, nullptr, nullptr);
 
       switch (status) {
         case ERROR_SUCCESS:
@@ -115,23 +100,14 @@ class RegistryUtil {
 
   static RegistryKeyValuePair? _enumerateKey(int hKey, int index) {
     final lpValueName = wsalloc(MAX_PATH);
-    final lpcchValueName = calloc<DWORD>()
-      ..value = MAX_PATH;
+    final lpcchValueName = calloc<DWORD>()..value = MAX_PATH;
     final lpType = calloc<DWORD>();
     final lpData = calloc<BYTE>(maxItemLength);
-    final lpcbData = calloc<DWORD>()
-      ..value = maxItemLength;
+    final lpcbData = calloc<DWORD>()..value = maxItemLength;
 
     try {
-      final status = RegEnumValue(
-          hKey,
-          index,
-          lpValueName,
-          lpcchValueName,
-          nullptr,
-          lpType,
-          lpData,
-          lpcbData);
+      final status = RegEnumValue(hKey, index, lpValueName, lpcchValueName,
+          nullptr, lpType, lpData, lpcbData);
 
       switch (status) {
         case ERROR_SUCCESS:
@@ -139,10 +115,7 @@ class RegistryUtil {
 // if (lpType.value != REG_SZ) throw Exception('Non-string content.');
             if (lpType.value == REG_DWORD) {
               return RegistryKeyValuePair(lpValueName.toDartString(),
-                  lpData
-                      .cast<Uint32>()
-                      .value
-                      .toString());
+                  lpData.cast<Uint32>().value.toString());
             }
             if (lpType.value == REG_SZ) {
               return RegistryKeyValuePair(lpValueName.toDartString(),
@@ -173,8 +146,8 @@ class RegistryUtil {
   /// 获取安装的应用信息列表
   static void getInstalledApps() {
     getSingleInstalledApps(regKey, hKeyValue: HKEY_LOCAL_MACHINE);
-    //getSingleInstalledApps(regKey, hKeyValue: HKEY_CURRENT_USER);
-    //getSingleInstalledApps(regKey64Bit, hKeyValue: HKEY_LOCAL_MACHINE);
+    getSingleInstalledApps(regKey, hKeyValue: HKEY_CURRENT_USER);
+    getSingleInstalledApps(regKey64Bit, hKeyValue: HKEY_LOCAL_MACHINE);
   }
 
   /// 获取安装的应用信息列表
@@ -202,11 +175,11 @@ class RegistryUtil {
     RegCloseKey(hKey);
   }
 
+  /// 获取注册表值
   static String? _enumerateValue(int hKey, String lpValueName) {
     final lpType = calloc<DWORD>();
     final lpData = calloc<BYTE>(maxItemLength);
-    final lpcbData = calloc<DWORD>()
-      ..value = maxItemLength;
+    final lpcbData = calloc<DWORD>()..value = maxItemLength;
 
     try {
       final status = RegQueryValueEx(
@@ -242,6 +215,7 @@ class RegistryUtil {
     return null;
   }
 
+  /// 获取注册表安装软件
   static InstallApp _enumerateInstallApp(int hKey) {
     InstallApp installApp = InstallApp(
       displayName: _enumerateValue(hKey, 'DisplayName'),
@@ -252,6 +226,12 @@ class RegistryUtil {
       displayIcon: _enumerateValue(hKey, 'DisplayIcon'),
       installLocation: _enumerateValue(hKey, 'InstallLocation'),
     );
+    if (installApp.displayVersion != null) {
+      installApp.name = installApp.displayName!
+          .replaceAll(installApp.displayVersion!, '')
+          .trim();
+    }
+
     return installApp;
   }
 }

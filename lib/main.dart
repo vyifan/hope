@@ -1,5 +1,3 @@
-import 'package:fairyland_shortcuts/models/database/database.dart';
-import 'package:fairyland_shortcuts/models/repository/fake_data.dart';
 import 'package:fairyland_shortcuts/screens/settings.dart';
 import 'package:fairyland_shortcuts/startup.dart';
 import 'package:fluent_ui/fluent_ui.dart';
@@ -10,6 +8,8 @@ import 'package:system_theme/system_theme.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'screens/app.dart';
+import 'screens/compress.dart';
 import 'screens/home.dart';
 import 'theme.dart';
 import 'utils/enums.dart';
@@ -19,6 +19,7 @@ const String appTitle = 'Lunk Box';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   setup();
   /*await database.into(database.tagTable)
       .insert(TagTableCompanion.insert(name: '浏览器', type: TagType.shortcut));
@@ -26,7 +27,7 @@ void main() async {
   var tag = database.select(database.tagTable).get();
   print(tag);*/
 
-  await FakeData.fake();
+  //await FakeData.fake();
   if (!kIsWeb &&
       [TargetPlatform.windows, TargetPlatform.android]
           .contains(defaultTargetPlatform)) {
@@ -41,15 +42,14 @@ void main() async {
     windowManager.waitUntilReadyToShow().then((_) async {
       await windowManager.setTitleBarStyle(TitleBarStyle.hidden,
           windowButtonVisibility: false);
-      await windowManager.setSize(const Size(755, 545));
-      await windowManager.setMinimumSize(const Size(350, 600));
+      await windowManager.setSize(const Size(1200, 768));
+      await windowManager.setMinimumSize(const Size(1200, 768));
       await windowManager.center();
       await windowManager.show();
       await windowManager.setPreventClose(true);
       await windowManager.setSkipTaskbar(false);
     });
   }
-
   runApp(MyApp());
 }
 
@@ -65,6 +65,7 @@ class MyApp extends StatelessWidget {
           return FluentApp(
             title: appTitle,
             themeMode: appTheme.mode,
+            debugShowCheckedModeBanner: false,
             color: appTheme.color,
             darkTheme: ThemeData(
                 brightness: Brightness.dark,
@@ -119,8 +120,17 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
   String get searchValue => searchController.text;
   late List<NavigationPaneItem> originalItems;
 
+  // 底部菜单
   final List<NavigationPaneItem> footerItems = [
     PaneItemSeparator(),
+    PaneItem(
+        icon: const Icon(FluentIcons.image_pixel),
+        title: const Text('图片压缩'),
+        body: CompressPage()),
+    PaneItem(
+        icon: const Icon(FluentIcons.add),
+        title: const Text('添加应用'),
+        body: AppPage()),
     PaneItem(
         icon: const Icon(FluentIcons.settings),
         title: const Text('设置'),
