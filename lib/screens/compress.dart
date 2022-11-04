@@ -7,6 +7,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:process_run/process_run.dart';
+import 'package:process_runner/process_runner.dart';
 import 'package:uuid/uuid.dart';
 
 import '../utils/compress_util.dart';
@@ -59,26 +60,49 @@ class _CompressPageState extends State<CompressPage> {
                           return;
                         }
                         File file = File(fileResult.files.single.path!);
-                        final result = await runExecutableArguments(
+
+                        ProcessRunner processRunner = ProcessRunner();
+                        ProcessRunnerResult result =
+                            await processRunner.runProcess(
+                          [
                             'jpegoptim',
-                            [
-                              '--stdin',
-                              '--stdout',
-                              '-s',
-                              '--all-progressive',
-                              '-o',
-                              '-f',
-                              '--max=75'
-                            ],
-                            verbose:false,
-                            commandVerbose:false,
-                            stdoutEncoding: Encoding.getByName('uft-8'),
-                            stdin: file.openRead(),
-                            stdout: stdout);
+                            '--stdin',
+                            '--stdout',
+                            '-s',
+                            '--all-progressive',
+                            '-o',
+                            '-f',
+                            '--max=75'
+                          ],
+                          stdin: file.openRead(),
+                        );
+
                         if (result.exitCode == 0) {
                           var newFile =
                               File('D:\\demo\\${const Uuid().v1()}.jpg');
-                          await newFile.writeAsBytes(result.stdout);
+                          await newFile.writeAsBytes(result.stdoutRaw);
+                        }
+
+                        final result1 = await runExecutableArguments(
+                          'jpegoptim',
+                          [
+                            '--stdin',
+                            '--stdout',
+                            '-s',
+                            '--all-progressive',
+                            '-o',
+                            '-f',
+                            '--max=75'
+                          ],
+                          verbose: false,
+                          commandVerbose: false,
+                          stdoutEncoding: Encoding.getByName('uft-8'),
+                          stdin: file.openRead(),
+                        );
+                        if (result1.exitCode == 0) {
+                          var newFile =
+                              File('D:\\demo\\${const Uuid().v1()}.old.jpg');
+                          await newFile.writeAsBytes(result1.stdout);
                         }
                       },
                       child: Container(
