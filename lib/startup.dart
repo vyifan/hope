@@ -1,5 +1,5 @@
-import 'package:fairyland_shortcuts/models/database/database.dart';
-import 'package:fairyland_shortcuts/models/repository/tag_repository.dart';
+import 'package:hope/models/database/database.dart';
+import 'package:hope/models/repository/tag_repository.dart';
 import 'package:get_it/get_it.dart';
 
 final getIt=GetIt.instance;

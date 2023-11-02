@@ -1,8 +1,8 @@
-import 'package:fairyland_shortcuts/screens/settings.dart';
-import 'package:fairyland_shortcuts/startup.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart' as flutter_acrylic;
+import 'package:hope/screens/settings.dart';
+import 'package:hope/startup.dart';
 import 'package:provider/provider.dart';
 import 'package:system_theme/system_theme.dart';
 import 'package:url_strategy/url_strategy.dart';
@@ -12,13 +12,30 @@ import 'screens/app.dart';
 import 'screens/compress.dart';
 import 'screens/home.dart';
 import 'theme.dart';
-import 'utils/enums.dart';
 import 'utils/platform_util.dart';
 
 const String appTitle = 'Lunk Box';
 
+/// Checks if the current environment is a desktop environment.
+bool get isDesktop {
+  if (kIsWeb) return false;
+  return [
+    TargetPlatform.windows,
+    TargetPlatform.linux,
+    TargetPlatform.macOS,
+  ].contains(defaultTargetPlatform);
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (!kIsWeb &&
+      [
+        TargetPlatform.windows,
+        TargetPlatform.android,
+      ].contains(defaultTargetPlatform)) {
+    SystemTheme.accentColor.load();
+  }
 
   setup();
   /*await database.into(database.tagTable)
@@ -28,16 +45,12 @@ void main() async {
   print(tag);*/
 
   //await FakeData.fake();
-  if (!kIsWeb &&
-      [TargetPlatform.windows, TargetPlatform.android]
-          .contains(defaultTargetPlatform)) {
-    await SystemTheme.accentColor.load();
-  }
 
   setPathUrlStrategy();
 
   if (isDeskTop) {
     await flutter_acrylic.Window.initialize();
+    await flutter_acrylic.Window.hideWindowControls();
     await WindowManager.instance.ensureInitialized();
     windowManager.waitUntilReadyToShow().then((_) async {
       await windowManager.setTitleBarStyle(TitleBarStyle.hidden,
@@ -46,11 +59,12 @@ void main() async {
       await windowManager.setMinimumSize(const Size(1200, 768));
       await windowManager.center();
       await windowManager.show();
+      await windowManager.focus();
       await windowManager.setPreventClose(true);
       await windowManager.setSkipTaskbar(false);
     });
   }
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -67,18 +81,18 @@ class MyApp extends StatelessWidget {
             themeMode: appTheme.mode,
             debugShowCheckedModeBanner: false,
             color: appTheme.color,
-            darkTheme: ThemeData(
+            darkTheme: FluentThemeData(
                 brightness: Brightness.dark,
                 accentColor: appTheme.color,
                 visualDensity: VisualDensity.standard,
                 focusTheme: FocusThemeData(
-                  glowFactor: is10footScreen() ? 2.0 : 0.0,
+                  glowFactor: is10footScreen(context) ? 2.0 : 0.0,
                 )),
-            theme: ThemeData(
+            theme: FluentThemeData(
                 accentColor: appTheme.color,
                 visualDensity: VisualDensity.standard,
                 focusTheme: FocusThemeData(
-                  glowFactor: is10footScreen() ? 2.0 : 0.0,
+                  glowFactor: is10footScreen(context) ? 2.0 : 0.0,
                 )),
             locale: appTheme.locale,
             builder: (context, child) {
@@ -123,6 +137,10 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
   // 底部菜单
   final List<NavigationPaneItem> footerItems = [
     PaneItemSeparator(),
+    PaneItem(
+        icon: const Icon(FluentIcons.image_pixel),
+        title: const Text('ChatGPT'),
+        body: CompressPage()),
     PaneItem(
         icon: const Icon(FluentIcons.image_pixel),
         title: const Text('图片压缩'),
@@ -231,7 +249,7 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
             resetSearch();
             setState(() => index = i);
           },
-          header: SizedBox(
+          /*header: SizedBox(
             height: kOneLineTileHeight,
             child: ShaderMask(
               shaderCallback: (rect) {
@@ -249,7 +267,7 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
                 duration: Duration.zero,
               ),
             ),
-          ),
+          ),*/
           displayMode: appTheme.displayMode,
           indicator: () {
             switch (appTheme.indicator) {
@@ -327,7 +345,7 @@ class WindowButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = FluentTheme.of(context);
+    final FluentThemeData theme = FluentTheme.of(context);
     return SizedBox(
       width: 138,
       height: 50,

@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
-import 'package:fairyland_shortcuts/models/database/database.dart';
-import 'package:fairyland_shortcuts/models/vm/tag_vm.dart';
+import 'package:hope/models/database/database.dart';
+import 'package:hope/models/vm/tag_vm.dart';
 
 part 'tag_repository.g.dart';
 

@@ -2,10 +2,7 @@
 
 part of 'shortcut_repository.dart';
 
-// **************************************************************************
-// DaoGenerator
-// **************************************************************************
-
+// ignore_for_file: type=lint
 mixin _$ShortcutRepositoryMixin on DatabaseAccessor<Database> {
   $ShortcutTableTable get shortcutTable => attachedDatabase.shortcutTable;
 }

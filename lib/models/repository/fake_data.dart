@@ -1,7 +1,7 @@
-import 'package:fairyland_shortcuts/models/repository/tag_repository.dart';
-import 'package:fairyland_shortcuts/routes/domain.dart';
-import 'package:fairyland_shortcuts/startup.dart';
-import 'package:fairyland_shortcuts/utils/util_index.dart';
+import 'package:hope/models/repository/tag_repository.dart';
+import 'package:hope/routes/domain.dart';
+import 'package:hope/startup.dart';
+import 'package:hope/utils/util_index.dart';
 
 class FakeData {
   static Future<void> fake() async {

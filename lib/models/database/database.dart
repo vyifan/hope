@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:drift/drift.dart';
-import 'package:fairyland_shortcuts/models/database/table/base_entity.dart';
+import 'package:hope/models/database/table/base_entity.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as path;
 
-import 'package:fairyland_shortcuts/utils/util_index.dart';
+import 'package:hope/utils/util_index.dart';
 
 part 'table/app_table.dart';
 part 'table/shortcut_table.dart';

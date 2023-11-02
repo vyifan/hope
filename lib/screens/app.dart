@@ -23,9 +23,9 @@ class AppPage extends ScrollablePage {
       TreeView(
         shrinkWrap: true,
         items: items,
-        onItemInvoked: (item) async {
+        /*onItemInvoked: (item) async {
           //debugPrint('onItemInvoked: $item')
-        },
+        },*/
         onSelectionChanged: (selectedItems) async {
           // debugPrint(
           //     'onSelectionChanged: ${selectedItems.map((i) => i.value)}');

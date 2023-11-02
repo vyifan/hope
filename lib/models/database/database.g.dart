@@ -2,11 +2,112 @@
 
 part of 'database.dart';
 
-// **************************************************************************
-// DriftDatabaseGenerator
-// **************************************************************************
-
 // ignore_for_file: type=lint
+class $AppTableTable extends AppTable with TableInfo<$AppTableTable, App> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AppTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      clientDefault: () => const Uuid().v1());
+  static const VerificationMeta _createTimeMeta =
+      const VerificationMeta('createTime');
+  @override
+  late final GeneratedColumn<DateTime> createTime = GeneratedColumn<DateTime>(
+      'create_time', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      clientDefault: () => DateTime.now());
+  static const VerificationMeta _updateTimeMeta =
+      const VerificationMeta('updateTime');
+  @override
+  late final GeneratedColumn<DateTime> updateTime = GeneratedColumn<DateTime>(
+      'update_time', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'));
+  static const VerificationMeta _iconMeta = const VerificationMeta('icon');
+  @override
+  late final GeneratedColumn<String> icon = GeneratedColumn<String>(
+      'icon', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, createTime, updateTime, name, icon];
+  @override
+  String get aliasedName => _alias ?? 'app';
+  @override
+  String get actualTableName => 'app';
+  @override
+  VerificationContext validateIntegrity(Insertable<App> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('create_time')) {
+      context.handle(
+          _createTimeMeta,
+          createTime.isAcceptableOrUnknown(
+              data['create_time']!, _createTimeMeta));
+    }
+    if (data.containsKey('update_time')) {
+      context.handle(
+          _updateTimeMeta,
+          updateTime.isAcceptableOrUnknown(
+              data['update_time']!, _updateTimeMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('icon')) {
+      context.handle(
+          _iconMeta, icon.isAcceptableOrUnknown(data['icon']!, _iconMeta));
+    } else if (isInserting) {
+      context.missing(_iconMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  App map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return App(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      createTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}create_time'])!,
+      updateTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}update_time']),
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      icon: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}icon'])!,
+    );
+  }
+
+  @override
+  $AppTableTable createAlias(String alias) {
+    return $AppTableTable(attachedDatabase, alias);
+  }
+}
+
 class App extends DataClass implements Insertable<App> {
   final String id;
   final DateTime createTime;
@@ -111,12 +212,14 @@ class AppTableCompanion extends UpdateCompanion<App> {
   final Value<DateTime?> updateTime;
   final Value<String> name;
   final Value<String> icon;
+  final Value<int> rowid;
   const AppTableCompanion({
     this.id = const Value.absent(),
     this.createTime = const Value.absent(),
     this.updateTime = const Value.absent(),
     this.name = const Value.absent(),
     this.icon = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   AppTableCompanion.insert({
     this.id = const Value.absent(),
@@ -124,6 +227,7 @@ class AppTableCompanion extends UpdateCompanion<App> {
     this.updateTime = const Value.absent(),
     required String name,
     required String icon,
+    this.rowid = const Value.absent(),
   })  : name = Value(name),
         icon = Value(icon);
   static Insertable<App> custom({
@@ -132,6 +236,7 @@ class AppTableCompanion extends UpdateCompanion<App> {
     Expression<DateTime>? updateTime,
     Expression<String>? name,
     Expression<String>? icon,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -139,6 +244,7 @@ class AppTableCompanion extends UpdateCompanion<App> {
       if (updateTime != null) 'update_time': updateTime,
       if (name != null) 'name': name,
       if (icon != null) 'icon': icon,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -147,13 +253,15 @@ class AppTableCompanion extends UpdateCompanion<App> {
       Value<DateTime>? createTime,
       Value<DateTime?>? updateTime,
       Value<String>? name,
-      Value<String>? icon}) {
+      Value<String>? icon,
+      Value<int>? rowid}) {
     return AppTableCompanion(
       id: id ?? this.id,
       createTime: createTime ?? this.createTime,
       updateTime: updateTime ?? this.updateTime,
       name: name ?? this.name,
       icon: icon ?? this.icon,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -175,6 +283,9 @@ class AppTableCompanion extends UpdateCompanion<App> {
     if (icon.present) {
       map['icon'] = Variable<String>(icon.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -185,74 +296,63 @@ class AppTableCompanion extends UpdateCompanion<App> {
           ..write('createTime: $createTime, ')
           ..write('updateTime: $updateTime, ')
           ..write('name: $name, ')
-          ..write('icon: $icon')
+          ..write('icon: $icon, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
 }
 
-class $AppTableTable extends AppTable with TableInfo<$AppTableTable, App> {
+class $ShortcutTableTable extends ShortcutTable
+    with TableInfo<$ShortcutTableTable, Shortcut> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $AppTableTable(this.attachedDatabase, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
+  $ShortcutTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       clientDefault: () => const Uuid().v1());
-  final VerificationMeta _createTimeMeta = const VerificationMeta('createTime');
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createTimeMeta =
+      const VerificationMeta('createTime');
   @override
   late final GeneratedColumn<DateTime> createTime = GeneratedColumn<DateTime>(
       'create_time', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      clientDefault: () => DateTime.now());
-  final VerificationMeta _updateTimeMeta = const VerificationMeta('updateTime');
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updateTimeMeta =
+      const VerificationMeta('updateTime');
   @override
   late final GeneratedColumn<DateTime> updateTime = GeneratedColumn<DateTime>(
       'update_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  final VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-      'name', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      defaultConstraints: 'UNIQUE');
-  final VerificationMeta _iconMeta = const VerificationMeta('icon');
-  @override
-  late final GeneratedColumn<String> icon = GeneratedColumn<String>(
-      'icon', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, createTime, updateTime, name, icon];
+      [id, name, description, createTime, updateTime];
   @override
-  String get aliasedName => _alias ?? 'app';
+  String get aliasedName => _alias ?? 'shortcut';
   @override
-  String get actualTableName => 'app';
+  String get actualTableName => 'shortcut';
   @override
-  VerificationContext validateIntegrity(Insertable<App> instance,
+  VerificationContext validateIntegrity(Insertable<Shortcut> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('create_time')) {
-      context.handle(
-          _createTimeMeta,
-          createTime.isAcceptableOrUnknown(
-              data['create_time']!, _createTimeMeta));
-    }
-    if (data.containsKey('update_time')) {
-      context.handle(
-          _updateTimeMeta,
-          updateTime.isAcceptableOrUnknown(
-              data['update_time']!, _updateTimeMeta));
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -260,11 +360,27 @@ class $AppTableTable extends AppTable with TableInfo<$AppTableTable, App> {
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('icon')) {
+    if (data.containsKey('description')) {
       context.handle(
-          _iconMeta, icon.isAcceptableOrUnknown(data['icon']!, _iconMeta));
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
     } else if (isInserting) {
-      context.missing(_iconMeta);
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('create_time')) {
+      context.handle(
+          _createTimeMeta,
+          createTime.isAcceptableOrUnknown(
+              data['create_time']!, _createTimeMeta));
+    } else if (isInserting) {
+      context.missing(_createTimeMeta);
+    }
+    if (data.containsKey('update_time')) {
+      context.handle(
+          _updateTimeMeta,
+          updateTime.isAcceptableOrUnknown(
+              data['update_time']!, _updateTimeMeta));
     }
     return context;
   }
@@ -272,25 +388,25 @@ class $AppTableTable extends AppTable with TableInfo<$AppTableTable, App> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  App map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Shortcut map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return App(
-      id: attachedDatabase.options.types
+    return Shortcut(
+      id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      createTime: attachedDatabase.options.types
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}create_time'])!,
-      updateTime: attachedDatabase.options.types
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}update_time']),
-      name: attachedDatabase.options.types
+      name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      icon: attachedDatabase.options.types
-          .read(DriftSqlType.string, data['${effectivePrefix}icon'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      createTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}create_time'])!,
+      updateTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}update_time']),
     );
   }
 
   @override
-  $AppTableTable createAlias(String alias) {
-    return $AppTableTable(attachedDatabase, alias);
+  $ShortcutTableTable createAlias(String alias) {
+    return $ShortcutTableTable(attachedDatabase, alias);
   }
 }
 
@@ -399,12 +515,14 @@ class ShortcutTableCompanion extends UpdateCompanion<Shortcut> {
   final Value<String> description;
   final Value<DateTime> createTime;
   final Value<DateTime?> updateTime;
+  final Value<int> rowid;
   const ShortcutTableCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.description = const Value.absent(),
     this.createTime = const Value.absent(),
     this.updateTime = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   ShortcutTableCompanion.insert({
     this.id = const Value.absent(),
@@ -412,6 +530,7 @@ class ShortcutTableCompanion extends UpdateCompanion<Shortcut> {
     required String description,
     required DateTime createTime,
     this.updateTime = const Value.absent(),
+    this.rowid = const Value.absent(),
   })  : name = Value(name),
         description = Value(description),
         createTime = Value(createTime);
@@ -421,6 +540,7 @@ class ShortcutTableCompanion extends UpdateCompanion<Shortcut> {
     Expression<String>? description,
     Expression<DateTime>? createTime,
     Expression<DateTime>? updateTime,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -428,6 +548,7 @@ class ShortcutTableCompanion extends UpdateCompanion<Shortcut> {
       if (description != null) 'description': description,
       if (createTime != null) 'create_time': createTime,
       if (updateTime != null) 'update_time': updateTime,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -436,13 +557,15 @@ class ShortcutTableCompanion extends UpdateCompanion<Shortcut> {
       Value<String>? name,
       Value<String>? description,
       Value<DateTime>? createTime,
-      Value<DateTime?>? updateTime}) {
+      Value<DateTime?>? updateTime,
+      Value<int>? rowid}) {
     return ShortcutTableCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
       createTime: createTime ?? this.createTime,
       updateTime: updateTime ?? this.updateTime,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -464,6 +587,9 @@ class ShortcutTableCompanion extends UpdateCompanion<Shortcut> {
     if (updateTime.present) {
       map['update_time'] = Variable<DateTime>(updateTime.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -474,82 +600,70 @@ class ShortcutTableCompanion extends UpdateCompanion<Shortcut> {
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('createTime: $createTime, ')
-          ..write('updateTime: $updateTime')
+          ..write('updateTime: $updateTime, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
 }
 
-class $ShortcutTableTable extends ShortcutTable
-    with TableInfo<$ShortcutTableTable, Shortcut> {
+class $TagTableTable extends TagTable with TableInfo<$TagTableTable, Tag> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $ShortcutTableTable(this.attachedDatabase, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
+  $TagTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       clientDefault: () => const Uuid().v1());
-  final VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-      'name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  final VerificationMeta _descriptionMeta =
-      const VerificationMeta('description');
-  @override
-  late final GeneratedColumn<String> description = GeneratedColumn<String>(
-      'description', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  final VerificationMeta _createTimeMeta = const VerificationMeta('createTime');
+  static const VerificationMeta _createTimeMeta =
+      const VerificationMeta('createTime');
   @override
   late final GeneratedColumn<DateTime> createTime = GeneratedColumn<DateTime>(
       'create_time', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  final VerificationMeta _updateTimeMeta = const VerificationMeta('updateTime');
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      clientDefault: () => DateTime.now());
+  static const VerificationMeta _updateTimeMeta =
+      const VerificationMeta('updateTime');
   @override
   late final GeneratedColumn<DateTime> updateTime = GeneratedColumn<DateTime>(
       'update_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumnWithTypeConverter<TagType, int> type =
+      GeneratedColumn<int>('type', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<TagType>($TagTableTable.$convertertype);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, name, description, createTime, updateTime];
+      [id, createTime, updateTime, name, type];
   @override
-  String get aliasedName => _alias ?? 'shortcut';
+  String get aliasedName => _alias ?? 'tag';
   @override
-  String get actualTableName => 'shortcut';
+  String get actualTableName => 'tag';
   @override
-  VerificationContext validateIntegrity(Insertable<Shortcut> instance,
+  VerificationContext validateIntegrity(Insertable<Tag> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('name')) {
-      context.handle(
-          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
-    } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    if (data.containsKey('description')) {
-      context.handle(
-          _descriptionMeta,
-          description.isAcceptableOrUnknown(
-              data['description']!, _descriptionMeta));
-    } else if (isInserting) {
-      context.missing(_descriptionMeta);
-    }
     if (data.containsKey('create_time')) {
       context.handle(
           _createTimeMeta,
           createTime.isAcceptableOrUnknown(
               data['create_time']!, _createTimeMeta));
-    } else if (isInserting) {
-      context.missing(_createTimeMeta);
     }
     if (data.containsKey('update_time')) {
       context.handle(
@@ -557,32 +671,42 @@ class $ShortcutTableTable extends ShortcutTable
           updateTime.isAcceptableOrUnknown(
               data['update_time']!, _updateTimeMeta));
     }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    context.handle(_typeMeta, const VerificationResult.success());
     return context;
   }
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Shortcut map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Tag map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Shortcut(
-      id: attachedDatabase.options.types
+    return Tag(
+      id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      name: attachedDatabase.options.types
-          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      description: attachedDatabase.options.types
-          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
-      createTime: attachedDatabase.options.types
+      createTime: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}create_time'])!,
-      updateTime: attachedDatabase.options.types
+      updateTime: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}update_time']),
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      type: $TagTableTable.$convertertype.fromSql(attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}type'])!),
     );
   }
 
   @override
-  $ShortcutTableTable createAlias(String alias) {
-    return $ShortcutTableTable(attachedDatabase, alias);
+  $TagTableTable createAlias(String alias) {
+    return $TagTableTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<TagType, int, int> $convertertype =
+      const EnumIndexConverter<TagType>(TagType.values);
 }
 
 class Tag extends DataClass implements Insertable<Tag> {
@@ -607,7 +731,7 @@ class Tag extends DataClass implements Insertable<Tag> {
     }
     map['name'] = Variable<String>(name);
     {
-      final converter = $TagTableTable.$converter0;
+      final converter = $TagTableTable.$convertertype;
       map['type'] = Variable<int>(converter.toSql(type));
     }
     return map;
@@ -633,7 +757,8 @@ class Tag extends DataClass implements Insertable<Tag> {
       createTime: serializer.fromJson<DateTime>(json['createTime']),
       updateTime: serializer.fromJson<DateTime?>(json['updateTime']),
       name: serializer.fromJson<String>(json['name']),
-      type: serializer.fromJson<TagType>(json['type']),
+      type: $TagTableTable.$convertertype
+          .fromJson(serializer.fromJson<int>(json['type'])),
     );
   }
   @override
@@ -644,7 +769,8 @@ class Tag extends DataClass implements Insertable<Tag> {
       'createTime': serializer.toJson<DateTime>(createTime),
       'updateTime': serializer.toJson<DateTime?>(updateTime),
       'name': serializer.toJson<String>(name),
-      'type': serializer.toJson<TagType>(type),
+      'type':
+          serializer.toJson<int>($TagTableTable.$convertertype.toJson(type)),
     };
   }
 
@@ -692,12 +818,14 @@ class TagTableCompanion extends UpdateCompanion<Tag> {
   final Value<DateTime?> updateTime;
   final Value<String> name;
   final Value<TagType> type;
+  final Value<int> rowid;
   const TagTableCompanion({
     this.id = const Value.absent(),
     this.createTime = const Value.absent(),
     this.updateTime = const Value.absent(),
     this.name = const Value.absent(),
     this.type = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   TagTableCompanion.insert({
     this.id = const Value.absent(),
@@ -705,6 +833,7 @@ class TagTableCompanion extends UpdateCompanion<Tag> {
     this.updateTime = const Value.absent(),
     required String name,
     required TagType type,
+    this.rowid = const Value.absent(),
   })  : name = Value(name),
         type = Value(type);
   static Insertable<Tag> custom({
@@ -713,6 +842,7 @@ class TagTableCompanion extends UpdateCompanion<Tag> {
     Expression<DateTime>? updateTime,
     Expression<String>? name,
     Expression<int>? type,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -720,6 +850,7 @@ class TagTableCompanion extends UpdateCompanion<Tag> {
       if (updateTime != null) 'update_time': updateTime,
       if (name != null) 'name': name,
       if (type != null) 'type': type,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -728,13 +859,15 @@ class TagTableCompanion extends UpdateCompanion<Tag> {
       Value<DateTime>? createTime,
       Value<DateTime?>? updateTime,
       Value<String>? name,
-      Value<TagType>? type}) {
+      Value<TagType>? type,
+      Value<int>? rowid}) {
     return TagTableCompanion(
       id: id ?? this.id,
       createTime: createTime ?? this.createTime,
       updateTime: updateTime ?? this.updateTime,
       name: name ?? this.name,
       type: type ?? this.type,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -754,8 +887,11 @@ class TagTableCompanion extends UpdateCompanion<Tag> {
       map['name'] = Variable<String>(name.value);
     }
     if (type.present) {
-      final converter = $TagTableTable.$converter0;
+      final converter = $TagTableTable.$convertertype;
       map['type'] = Variable<int>(converter.toSql(type.value));
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
     }
     return map;
   }
@@ -767,67 +903,77 @@ class TagTableCompanion extends UpdateCompanion<Tag> {
           ..write('createTime: $createTime, ')
           ..write('updateTime: $updateTime, ')
           ..write('name: $name, ')
-          ..write('type: $type')
+          ..write('type: $type, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
 }
 
-class $TagTableTable extends TagTable with TableInfo<$TagTableTable, Tag> {
+class $TagAppMapTableTable extends TagAppMapTable
+    with TableInfo<$TagAppMapTableTable, TagAppMap> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $TagTableTable(this.attachedDatabase, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
+  $TagAppMapTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _tagIdMeta = const VerificationMeta('tagId');
   @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-      'id', aliasedName, false,
+  late final GeneratedColumn<String> tagId = GeneratedColumn<String>(
+      'tag_id', aliasedName, false,
       type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      clientDefault: () => const Uuid().v1());
-  final VerificationMeta _createTimeMeta = const VerificationMeta('createTime');
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES tag (id)'));
+  static const VerificationMeta _appIdMeta = const VerificationMeta('appId');
+  @override
+  late final GeneratedColumn<String> appId = GeneratedColumn<String>(
+      'app_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES app (id)'));
+  static const VerificationMeta _createTimeMeta =
+      const VerificationMeta('createTime');
   @override
   late final GeneratedColumn<DateTime> createTime = GeneratedColumn<DateTime>(
       'create_time', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      clientDefault: () => DateTime.now());
-  final VerificationMeta _updateTimeMeta = const VerificationMeta('updateTime');
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updateTimeMeta =
+      const VerificationMeta('updateTime');
   @override
   late final GeneratedColumn<DateTime> updateTime = GeneratedColumn<DateTime>(
       'update_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  final VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-      'name', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  final VerificationMeta _typeMeta = const VerificationMeta('type');
+  List<GeneratedColumn> get $columns => [tagId, appId, createTime, updateTime];
   @override
-  late final GeneratedColumnWithTypeConverter<TagType, int> type =
-      GeneratedColumn<int>('type', aliasedName, false,
-              type: DriftSqlType.int, requiredDuringInsert: true)
-          .withConverter<TagType>($TagTableTable.$converter0);
+  String get aliasedName => _alias ?? 'tag_app_map';
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, createTime, updateTime, name, type];
+  String get actualTableName => 'tag_app_map';
   @override
-  String get aliasedName => _alias ?? 'tag';
-  @override
-  String get actualTableName => 'tag';
-  @override
-  VerificationContext validateIntegrity(Insertable<Tag> instance,
+  VerificationContext validateIntegrity(Insertable<TagAppMap> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    if (data.containsKey('tag_id')) {
+      context.handle(
+          _tagIdMeta, tagId.isAcceptableOrUnknown(data['tag_id']!, _tagIdMeta));
+    } else if (isInserting) {
+      context.missing(_tagIdMeta);
+    }
+    if (data.containsKey('app_id')) {
+      context.handle(
+          _appIdMeta, appId.isAcceptableOrUnknown(data['app_id']!, _appIdMeta));
+    } else if (isInserting) {
+      context.missing(_appIdMeta);
     }
     if (data.containsKey('create_time')) {
       context.handle(
           _createTimeMeta,
           createTime.isAcceptableOrUnknown(
               data['create_time']!, _createTimeMeta));
+    } else if (isInserting) {
+      context.missing(_createTimeMeta);
     }
     if (data.containsKey('update_time')) {
       context.handle(
@@ -835,42 +981,30 @@ class $TagTableTable extends TagTable with TableInfo<$TagTableTable, Tag> {
           updateTime.isAcceptableOrUnknown(
               data['update_time']!, _updateTimeMeta));
     }
-    if (data.containsKey('name')) {
-      context.handle(
-          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
-    } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    context.handle(_typeMeta, const VerificationResult.success());
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {tagId, appId};
   @override
-  Tag map(Map<String, dynamic> data, {String? tablePrefix}) {
+  TagAppMap map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Tag(
-      id: attachedDatabase.options.types
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      createTime: attachedDatabase.options.types
+    return TagAppMap(
+      tagId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tag_id'])!,
+      appId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}app_id'])!,
+      createTime: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}create_time'])!,
-      updateTime: attachedDatabase.options.types
+      updateTime: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}update_time']),
-      name: attachedDatabase.options.types
-          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      type: $TagTableTable.$converter0.fromSql(attachedDatabase.options.types
-          .read(DriftSqlType.int, data['${effectivePrefix}type'])!),
     );
   }
 
   @override
-  $TagTableTable createAlias(String alias) {
-    return $TagTableTable(attachedDatabase, alias);
+  $TagAppMapTableTable createAlias(String alias) {
+    return $TagAppMapTableTable(attachedDatabase, alias);
   }
-
-  static TypeConverter<TagType, int> $converter0 =
-      const EnumIndexConverter<TagType>(TagType.values);
 }
 
 class TagAppMap extends DataClass implements Insertable<TagAppMap> {
@@ -966,17 +1100,20 @@ class TagAppMapTableCompanion extends UpdateCompanion<TagAppMap> {
   final Value<String> appId;
   final Value<DateTime> createTime;
   final Value<DateTime?> updateTime;
+  final Value<int> rowid;
   const TagAppMapTableCompanion({
     this.tagId = const Value.absent(),
     this.appId = const Value.absent(),
     this.createTime = const Value.absent(),
     this.updateTime = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   TagAppMapTableCompanion.insert({
     required String tagId,
     required String appId,
     required DateTime createTime,
     this.updateTime = const Value.absent(),
+    this.rowid = const Value.absent(),
   })  : tagId = Value(tagId),
         appId = Value(appId),
         createTime = Value(createTime);
@@ -985,12 +1122,14 @@ class TagAppMapTableCompanion extends UpdateCompanion<TagAppMap> {
     Expression<String>? appId,
     Expression<DateTime>? createTime,
     Expression<DateTime>? updateTime,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (tagId != null) 'tag_id': tagId,
       if (appId != null) 'app_id': appId,
       if (createTime != null) 'create_time': createTime,
       if (updateTime != null) 'update_time': updateTime,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -998,12 +1137,14 @@ class TagAppMapTableCompanion extends UpdateCompanion<TagAppMap> {
       {Value<String>? tagId,
       Value<String>? appId,
       Value<DateTime>? createTime,
-      Value<DateTime?>? updateTime}) {
+      Value<DateTime?>? updateTime,
+      Value<int>? rowid}) {
     return TagAppMapTableCompanion(
       tagId: tagId ?? this.tagId,
       appId: appId ?? this.appId,
       createTime: createTime ?? this.createTime,
       updateTime: updateTime ?? this.updateTime,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -1022,6 +1163,9 @@ class TagAppMapTableCompanion extends UpdateCompanion<TagAppMap> {
     if (updateTime.present) {
       map['update_time'] = Variable<DateTime>(updateTime.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -1031,50 +1175,57 @@ class TagAppMapTableCompanion extends UpdateCompanion<TagAppMap> {
           ..write('tagId: $tagId, ')
           ..write('appId: $appId, ')
           ..write('createTime: $createTime, ')
-          ..write('updateTime: $updateTime')
+          ..write('updateTime: $updateTime, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
 }
 
-class $TagAppMapTableTable extends TagAppMapTable
-    with TableInfo<$TagAppMapTableTable, TagAppMap> {
+class $TagShortcutMapTableTable extends TagShortcutMapTable
+    with TableInfo<$TagShortcutMapTableTable, TagShortcutMap> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $TagAppMapTableTable(this.attachedDatabase, [this._alias]);
-  final VerificationMeta _tagIdMeta = const VerificationMeta('tagId');
+  $TagShortcutMapTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _tagIdMeta = const VerificationMeta('tagId');
   @override
   late final GeneratedColumn<String> tagId = GeneratedColumn<String>(
       'tag_id', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: true,
-      defaultConstraints: 'REFERENCES tag (id)');
-  final VerificationMeta _appIdMeta = const VerificationMeta('appId');
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES tag (id)'));
+  static const VerificationMeta _shortcutIdMeta =
+      const VerificationMeta('shortcutId');
   @override
-  late final GeneratedColumn<String> appId = GeneratedColumn<String>(
-      'app_id', aliasedName, false,
+  late final GeneratedColumn<String> shortcutId = GeneratedColumn<String>(
+      'shortcut_id', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: true,
-      defaultConstraints: 'REFERENCES app (id)');
-  final VerificationMeta _createTimeMeta = const VerificationMeta('createTime');
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES shortcut (id)'));
+  static const VerificationMeta _createTimeMeta =
+      const VerificationMeta('createTime');
   @override
   late final GeneratedColumn<DateTime> createTime = GeneratedColumn<DateTime>(
       'create_time', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  final VerificationMeta _updateTimeMeta = const VerificationMeta('updateTime');
+  static const VerificationMeta _updateTimeMeta =
+      const VerificationMeta('updateTime');
   @override
   late final GeneratedColumn<DateTime> updateTime = GeneratedColumn<DateTime>(
       'update_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
   @override
-  List<GeneratedColumn> get $columns => [tagId, appId, createTime, updateTime];
+  List<GeneratedColumn> get $columns =>
+      [tagId, shortcutId, createTime, updateTime];
   @override
-  String get aliasedName => _alias ?? 'tag_app_map';
+  String get aliasedName => _alias ?? 'tag_shortcut_map';
   @override
-  String get actualTableName => 'tag_app_map';
+  String get actualTableName => 'tag_shortcut_map';
   @override
-  VerificationContext validateIntegrity(Insertable<TagAppMap> instance,
+  VerificationContext validateIntegrity(Insertable<TagShortcutMap> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -1084,11 +1235,13 @@ class $TagAppMapTableTable extends TagAppMapTable
     } else if (isInserting) {
       context.missing(_tagIdMeta);
     }
-    if (data.containsKey('app_id')) {
+    if (data.containsKey('shortcut_id')) {
       context.handle(
-          _appIdMeta, appId.isAcceptableOrUnknown(data['app_id']!, _appIdMeta));
+          _shortcutIdMeta,
+          shortcutId.isAcceptableOrUnknown(
+              data['shortcut_id']!, _shortcutIdMeta));
     } else if (isInserting) {
-      context.missing(_appIdMeta);
+      context.missing(_shortcutIdMeta);
     }
     if (data.containsKey('create_time')) {
       context.handle(
@@ -1108,25 +1261,25 @@ class $TagAppMapTableTable extends TagAppMapTable
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {tagId, appId};
+  Set<GeneratedColumn> get $primaryKey => {tagId, shortcutId};
   @override
-  TagAppMap map(Map<String, dynamic> data, {String? tablePrefix}) {
+  TagShortcutMap map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TagAppMap(
-      tagId: attachedDatabase.options.types
+    return TagShortcutMap(
+      tagId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}tag_id'])!,
-      appId: attachedDatabase.options.types
-          .read(DriftSqlType.string, data['${effectivePrefix}app_id'])!,
-      createTime: attachedDatabase.options.types
+      shortcutId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}shortcut_id'])!,
+      createTime: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}create_time'])!,
-      updateTime: attachedDatabase.options.types
+      updateTime: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}update_time']),
     );
   }
 
   @override
-  $TagAppMapTableTable createAlias(String alias) {
-    return $TagAppMapTableTable(attachedDatabase, alias);
+  $TagShortcutMapTableTable createAlias(String alias) {
+    return $TagShortcutMapTableTable(attachedDatabase, alias);
   }
 }
 
@@ -1223,17 +1376,20 @@ class TagShortcutMapTableCompanion extends UpdateCompanion<TagShortcutMap> {
   final Value<String> shortcutId;
   final Value<DateTime> createTime;
   final Value<DateTime?> updateTime;
+  final Value<int> rowid;
   const TagShortcutMapTableCompanion({
     this.tagId = const Value.absent(),
     this.shortcutId = const Value.absent(),
     this.createTime = const Value.absent(),
     this.updateTime = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   TagShortcutMapTableCompanion.insert({
     required String tagId,
     required String shortcutId,
     required DateTime createTime,
     this.updateTime = const Value.absent(),
+    this.rowid = const Value.absent(),
   })  : tagId = Value(tagId),
         shortcutId = Value(shortcutId),
         createTime = Value(createTime);
@@ -1242,12 +1398,14 @@ class TagShortcutMapTableCompanion extends UpdateCompanion<TagShortcutMap> {
     Expression<String>? shortcutId,
     Expression<DateTime>? createTime,
     Expression<DateTime>? updateTime,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (tagId != null) 'tag_id': tagId,
       if (shortcutId != null) 'shortcut_id': shortcutId,
       if (createTime != null) 'create_time': createTime,
       if (updateTime != null) 'update_time': updateTime,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -1255,12 +1413,14 @@ class TagShortcutMapTableCompanion extends UpdateCompanion<TagShortcutMap> {
       {Value<String>? tagId,
       Value<String>? shortcutId,
       Value<DateTime>? createTime,
-      Value<DateTime?>? updateTime}) {
+      Value<DateTime?>? updateTime,
+      Value<int>? rowid}) {
     return TagShortcutMapTableCompanion(
       tagId: tagId ?? this.tagId,
       shortcutId: shortcutId ?? this.shortcutId,
       createTime: createTime ?? this.createTime,
       updateTime: updateTime ?? this.updateTime,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -1279,6 +1439,9 @@ class TagShortcutMapTableCompanion extends UpdateCompanion<TagShortcutMap> {
     if (updateTime.present) {
       map['update_time'] = Variable<DateTime>(updateTime.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -1288,105 +1451,10 @@ class TagShortcutMapTableCompanion extends UpdateCompanion<TagShortcutMap> {
           ..write('tagId: $tagId, ')
           ..write('shortcutId: $shortcutId, ')
           ..write('createTime: $createTime, ')
-          ..write('updateTime: $updateTime')
+          ..write('updateTime: $updateTime, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
-  }
-}
-
-class $TagShortcutMapTableTable extends TagShortcutMapTable
-    with TableInfo<$TagShortcutMapTableTable, TagShortcutMap> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $TagShortcutMapTableTable(this.attachedDatabase, [this._alias]);
-  final VerificationMeta _tagIdMeta = const VerificationMeta('tagId');
-  @override
-  late final GeneratedColumn<String> tagId = GeneratedColumn<String>(
-      'tag_id', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      defaultConstraints: 'REFERENCES tag (id)');
-  final VerificationMeta _shortcutIdMeta = const VerificationMeta('shortcutId');
-  @override
-  late final GeneratedColumn<String> shortcutId = GeneratedColumn<String>(
-      'shortcut_id', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      defaultConstraints: 'REFERENCES shortcut (id)');
-  final VerificationMeta _createTimeMeta = const VerificationMeta('createTime');
-  @override
-  late final GeneratedColumn<DateTime> createTime = GeneratedColumn<DateTime>(
-      'create_time', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  final VerificationMeta _updateTimeMeta = const VerificationMeta('updateTime');
-  @override
-  late final GeneratedColumn<DateTime> updateTime = GeneratedColumn<DateTime>(
-      'update_time', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  @override
-  List<GeneratedColumn> get $columns =>
-      [tagId, shortcutId, createTime, updateTime];
-  @override
-  String get aliasedName => _alias ?? 'tag_shortcut_map';
-  @override
-  String get actualTableName => 'tag_shortcut_map';
-  @override
-  VerificationContext validateIntegrity(Insertable<TagShortcutMap> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('tag_id')) {
-      context.handle(
-          _tagIdMeta, tagId.isAcceptableOrUnknown(data['tag_id']!, _tagIdMeta));
-    } else if (isInserting) {
-      context.missing(_tagIdMeta);
-    }
-    if (data.containsKey('shortcut_id')) {
-      context.handle(
-          _shortcutIdMeta,
-          shortcutId.isAcceptableOrUnknown(
-              data['shortcut_id']!, _shortcutIdMeta));
-    } else if (isInserting) {
-      context.missing(_shortcutIdMeta);
-    }
-    if (data.containsKey('create_time')) {
-      context.handle(
-          _createTimeMeta,
-          createTime.isAcceptableOrUnknown(
-              data['create_time']!, _createTimeMeta));
-    } else if (isInserting) {
-      context.missing(_createTimeMeta);
-    }
-    if (data.containsKey('update_time')) {
-      context.handle(
-          _updateTimeMeta,
-          updateTime.isAcceptableOrUnknown(
-              data['update_time']!, _updateTimeMeta));
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {tagId, shortcutId};
-  @override
-  TagShortcutMap map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TagShortcutMap(
-      tagId: attachedDatabase.options.types
-          .read(DriftSqlType.string, data['${effectivePrefix}tag_id'])!,
-      shortcutId: attachedDatabase.options.types
-          .read(DriftSqlType.string, data['${effectivePrefix}shortcut_id'])!,
-      createTime: attachedDatabase.options.types
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}create_time'])!,
-      updateTime: attachedDatabase.options.types
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}update_time']),
-    );
-  }
-
-  @override
-  $TagShortcutMapTableTable createAlias(String alias) {
-    return $TagShortcutMapTableTable(attachedDatabase, alias);
   }
 }
 
@@ -1399,7 +1467,7 @@ abstract class _$Database extends GeneratedDatabase {
   late final $TagShortcutMapTableTable tagShortcutMapTable =
       $TagShortcutMapTableTable(this);
   @override
-  Iterable<TableInfo<Table, dynamic>> get allTables =>
+  Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>

@@ -1,4 +1,4 @@
-import 'package:fairyland_shortcuts/utils/windows/entity.dart';
+import 'package:hope/utils/windows/entity.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +20,12 @@ class _HomePageState extends State<HomePage> with PageMixin {
   @override
   Widget build(BuildContext context) {
     final appTheme = context.watch<AppTheme>();
-    return _buildAppShortcuts();
+    //return _buildAppShortcuts();
+    return Container(child: Button(child:Text("点击我"),onPressed: ()=>{
+
+
+
+    },),);
   }
 
   Widget _buildAppShortcuts() {

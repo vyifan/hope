@@ -1,4 +1,4 @@
-import 'package:fairyland_shortcuts/utils/platform_util.dart';
+import 'package:hope/utils/platform_util.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/src/widgets/framework.dart';

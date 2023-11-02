@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:fairyland_shortcuts/models/database/database.dart';
+import 'package:hope/models/database/database.dart';
 
 part 'shortcut_repository.g.dart';
 
