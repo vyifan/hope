@@ -1,6 +1,7 @@
-import 'package:hope/utils/windows/entity.dart';
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter/material.dart' as m;
+import 'package:flutter/material.dart';
+import 'package:hope/utils/windows/entity.dart';
 import 'package:provider/provider.dart';
 
 import '../theme.dart';
@@ -21,18 +22,38 @@ class _HomePageState extends State<HomePage> with PageMixin {
   Widget build(BuildContext context) {
     final appTheme = context.watch<AppTheme>();
     //return _buildAppShortcuts();
-    return Container(child: Button(child:Text("点击我"),onPressed: ()=>{
-
-
-
-    },),);
+    return m.Material(
+      child: const ExpansionTile(
+        title: Text('Colors'),
+        subtitle: Text('Expand this tile to see its contents'),
+        // Contents
+        children: [
+          m.ListTile(
+              leading: CircleAvatar(
+                backgroundColor: m.Colors.blue,
+              ),
+              title: Text('Blue')),
+          m.ListTile(
+              leading: CircleAvatar(
+                backgroundColor: m.Colors.red,
+              ),
+              title: Text('Red')),
+          m.ListTile(
+              leading: CircleAvatar(
+                backgroundColor: m.Colors.amber,
+              ),
+              title: Text('Amber')),
+        ],
+      ),
+    );
   }
 
   Widget _buildAppShortcuts() {
     RegistryUtil.getInstalledApps();
     List<InstallApp> apps =
         RegistryUtil.installApps.entries.map((e) => e.value).toList();
-    return ScaffoldPage.scrollable(children: apps.map((e) => _buildApp(e)).toList());
+    return ScaffoldPage.scrollable(
+        children: apps.map((e) => _buildApp(e)).toList());
   }
 
   Widget _buildApp(InstallApp app) {
@@ -67,29 +88,30 @@ class _HomePageState extends State<HomePage> with PageMixin {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    //border: Border.all(color: Colors.grey),
+                      //border: Border.all(color: Colors.grey),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
                       color:
-                      isClick ? Color(0xFFf4f3ec) : Colors.transparent),
+                          isClick ? Color(0xFFf4f3ec) : m.Colors.transparent),
                   child: Row(children: [
                     Expanded(
                         child: Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Row(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.only(right: 10.0),
-                                width: 5,
-                                height: 5,
-                                decoration: BoxDecoration(
-                                    color:
-                                    isClick ? Colors.red : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(15.0)),
-                              ),
-                              Text('Ctrl+T')
-                            ],
+                      padding: EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(right: 10.0),
+                            width: 5,
+                            height: 5,
+                            decoration: BoxDecoration(
+                                color: isClick
+                                    ? m.Colors.red
+                                    : m.Colors.transparent,
+                                borderRadius: BorderRadius.circular(15.0)),
                           ),
-                        )),
+                          Text('Ctrl+T')
+                        ],
+                      ),
+                    )),
                     Expanded(child: Text('Open new tab')),
                     Expanded(child: Text('browser productivity'))
                   ]),
@@ -102,3 +124,9 @@ class _HomePageState extends State<HomePage> with PageMixin {
     );
   }
 }
+
+final treeViewItems = [
+  TreeViewItem(content: const Text('Option 1')),
+  TreeViewItem(content: const Text('Option 2')),
+  TreeViewItem(content: const Text('Option 3')),
+];

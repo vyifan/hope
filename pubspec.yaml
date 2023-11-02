@@ -44,7 +44,7 @@ dependencies:
   path_provider: ^2.1.0
   uuid: ^3.0.7
   drift: ^2.11.0
-  sqlite3_flutter_libs: ^0.5.15
+  sqlite3_flutter_libs: ^0.5.18
   get_it: ^7.6.0
   json_annotation: ^4.8.1
   dotted_border: ^2.0.0+3
@@ -53,6 +53,7 @@ dependencies:
   file_picker: ^5.3.3
   process_runner: ^4.1.2
   flash: ^3.0.5+1
+  flutter_syntax_view: ^4.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

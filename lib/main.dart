@@ -37,7 +37,7 @@ void main() async {
     SystemTheme.accentColor.load();
   }
 
-  setup();
+  //setup();
   /*await database.into(database.tagTable)
       .insert(TagTableCompanion.insert(name: '浏览器', type: TagType.shortcut));
 
@@ -46,7 +46,7 @@ void main() async {
 
   //await FakeData.fake();
 
-  setPathUrlStrategy();
+ // setPathUrlStrategy();
 
   if (isDeskTop) {
     await flutter_acrylic.Window.initialize();
@@ -65,6 +65,8 @@ void main() async {
     });
   }
   runApp(const MyApp());
+
+  
 }
 
 class MyApp extends StatelessWidget {
@@ -303,8 +305,8 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
 
   @override
   void onWindowClose() async {
-    bool _isPreventClose = await windowManager.isPreventClose();
-    if (_isPreventClose) {
+    bool isPreventClose = await windowManager.isPreventClose();
+    if (isPreventClose) {
       showDialog(
           context: context,
           builder: (_) {
