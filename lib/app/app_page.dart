@@ -1,11 +1,13 @@
-import 'package:fluent_ui/fluent_ui.dart' hide Colors;
-import 'package:flutter/material.dart';
-import 'package:hope/app/main_page.dart';
-import 'package:provider/provider.dart';
+import 'package:fluent_ui/fluent_ui.dart' hide Page;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart' as flutter_acrylic;
-
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:system_theme/system_theme.dart';
+import 'package:window_manager/window_manager.dart';
 import '../core/constants/index.dart';
 import '../theme.dart';
+import 'config/index.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -16,7 +18,7 @@ class MyApp extends StatelessWidget {
         create: (_) => AppTheme(),
         builder: (context, _) {
           final appTheme = context.watch<AppTheme>();
-          return FluentApp(
+          return FluentApp.router(
             title: AppConstant.appTitle,
             themeMode: appTheme.mode,
             debugShowCheckedModeBanner: false,
@@ -47,8 +49,9 @@ class MyApp extends StatelessWidget {
                     child: child!,
                   ));
             },
-            initialRoute: '/',
-            routes: {'/': (context) => const MainPage()},
+            routeInformationParser: router.routeInformationParser,
+            routerDelegate: router.routerDelegate,
+            routeInformationProvider: router.routeInformationProvider,
           );
         });
   }

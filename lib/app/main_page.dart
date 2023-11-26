@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart' hide Colors;
+import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide FilledButton, showDialog;
+import 'package:go_router/go_router.dart';
 import 'package:hope/screens/home.dart';
 import 'package:hope/theme.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +11,14 @@ import '../core/constants/index.dart';
 import 'config/index.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({Key? key}) : super(key: key);
+  const MainPage({
+    super.key,
+    required this.child,
+    required this.shellContext,
+  });
+
+  final Widget child;
+  final BuildContext? shellContext;
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -19,48 +27,107 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> with WindowListener {
   bool value = false;
   int index = 0;
-  final viewKey = GlobalKey();
-  final key = GlobalKey();
+  final viewKey = GlobalKey(debugLabel: 'Navigation View Key');
+  final searchKey = GlobalKey(debugLabel: 'Search Bar Key');
   final searchFocusNode = FocusNode();
   final searchController = TextEditingController();
 
   void resetSearch() => searchController.clear();
 
   String get searchValue => searchController.text;
-  late List<NavigationPaneItem> originalItems;
-  late List<NavigationPaneItem> items = originalItems;
-  List<NavigationPaneItem> footerItems = AppConfig.footerItems;
-  _MainPageState() {
-    originalItems = _getNavigationPane();
-  }
+  late final List<NavigationPaneItem> originalItems =
+      AppConfig.originalItems.map<NavigationPaneItem>((e) {
+    PaneItem buildPaneItem(PaneItem item) {
+      return PaneItem(
+        key: item.key,
+        icon: item.icon,
+        title: item.title,
+        body: item.body,
+        onTap: () {
+          final path = (item.key as ValueKey).value;
+          if (GoRouterState.of(context).uri.toString() != path) {
+            context.go(path);
+          }
+          item.onTap?.call();
+        },
+      );
+    }
+
+    if (e is PaneItemExpander) {
+      return PaneItemExpander(
+        key: e.key,
+        icon: e.icon,
+        title: e.title,
+        body: e.body,
+        items: e.items.map((item) {
+          if (item is PaneItem) return buildPaneItem(item);
+          return item;
+        }).toList(),
+      );
+    }
+    if (e is PaneItem) return buildPaneItem(e);
+    return e;
+  }).toList();
+
+  //late List<NavigationPaneItem> footerItems = AppConfig.getFooterItems(context);
+  late final List<NavigationPaneItem> footerItems = [
+    PaneItemSeparator(),
+    PaneItem(
+      key: const ValueKey('/settings'),
+      icon: const Icon(FluentIcons.settings),
+      title: const Text('Settings'),
+      body: const SizedBox.shrink(),
+      onTap: () {
+        if (GoRouterState.of(context).uri.toString() != '/settings') {
+          context.go('/settings');
+        }
+      },
+    )
+  ];
 
   @override
   void initState() {
     windowManager.addListener(this);
-    searchController.addListener(() {
-      setState(() {
-        if (searchValue.isEmpty) {
-          items = originalItems;
-        } else {
-          items = [...originalItems, ...footerItems]
-              .whereType<PaneItem>()
-              .where((item) {
-                assert(item.title is Text);
-                final text = (item.title as Text).data!;
-                return text.toLowerCase().contains(searchValue.toLowerCase());
-              })
-              .toList()
-              .cast<NavigationPaneItem>();
-        }
-      });
-    });
     super.initState();
+  }
+
+  int _calculateSelectedIndex(BuildContext context) {
+    final location = GoRouterState.of(context).uri.toString();
+    int indexOriginal = originalItems
+        .where((item) => item.key != null)
+        .toList()
+        .indexWhere((item) => item.key == Key(location));
+
+    if (indexOriginal == -1) {
+      int indexFooter = footerItems
+          .where((element) => element.key != null)
+          .toList()
+          .indexWhere((element) => element.key == Key(location));
+      if (indexFooter == -1) {
+        return 0;
+      }
+      return originalItems
+              .where((element) => element.key != null)
+              .toList()
+              .length +
+          indexFooter;
+    } else {
+      return indexOriginal;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final localizations = FluentLocalizations.of(context);
+
     final appTheme = context.watch<AppTheme>();
     final theme = FluentTheme.of(context);
+
+    if (widget.shellContext != null) {
+      if (router.canPop() == false) {
+        setState(() {});
+      }
+    }
 
     return NavigationView(
       key: viewKey,
@@ -88,8 +155,6 @@ class _MainPageState extends State<MainPage> with WindowListener {
                   content: const Text('夜间模式'),
                   checked: FluentTheme.of(context).brightness.isDark,
                   onChanged: (v) {
-                    print(v);
-                    print(FluentTheme.of(context).brightness.isDark);
                     appTheme.mode = v ? ThemeMode.dark : ThemeMode.light;
                   },
                 ),
@@ -97,72 +162,102 @@ class _MainPageState extends State<MainPage> with WindowListener {
               if (!kIsWeb) const WindowButtons()
             ],
           )),
+      paneBodyBuilder: (item, child) {
+        final name =
+            item?.key is ValueKey ? (item!.key as ValueKey).value : null;
+        return FocusTraversalGroup(
+          key: ValueKey('body$name'),
+          child: widget.child,
+        );
+      },
       pane: NavigationPane(
-          selected: () {
-            if (searchValue.isEmpty) {
-              return index;
-            }
-            final indexOnScreen = items.indexOf([
-              ...originalItems,
-              ...footerItems
-            ].whereType<PaneItem>().elementAt(index));
-            if (indexOnScreen.isNegative) {
-              return null;
-            }
-            return indexOnScreen;
-          }(),
-          onChanged: (i) {
-            if (searchValue.isNotEmpty) {
-              final equivalentIndex = [...originalItems, ...footerItems]
-                  .whereType<PaneItem>()
-                  .toList()
-                  .indexOf(items[i] as PaneItem);
-              i = equivalentIndex;
-            }
-            resetSearch();
-            setState(() => index = i);
-          },
-          /*header: SizedBox(
-            height: kOneLineTileHeight,
-            child: ShaderMask(
-              shaderCallback: (rect) {
-                final color = appTheme.color.resolveFromReverseBrightness(
-                  theme.brightness,
-                  level: theme.brightness == Brightness.light ? 0 : 2,
-                );
-                return LinearGradient(colors: [color, color])
-                    .createShader(rect);
-              },
-              child: const FlutterLogo(
-                style: FlutterLogoStyle.horizontal,
-                size: 80.0,
-                textColor: Colors.white,
-                duration: Duration.zero,
+        selected: _calculateSelectedIndex(context),
+        header: SizedBox(
+          height: kOneLineTileHeight,
+          child: ShaderMask(
+            shaderCallback: (rect) {
+              final color = appTheme.color.defaultBrushFor(
+                theme.brightness,
+              );
+              return LinearGradient(
+                colors: [
+                  color,
+                  color,
+                ],
+              ).createShader(rect);
+            },
+            child: const FlutterLogo(
+              style: FlutterLogoStyle.horizontal,
+              size: 80.0,
+              textColor: Colors.white,
+              duration: Duration.zero,
+            ),
+          ),
+        ),
+        displayMode: appTheme.displayMode,
+        indicator: () {
+          switch (appTheme.indicator) {
+            case NavigationIndicators.end:
+              return const EndNavigationIndicator();
+            case NavigationIndicators.sticky:
+            default:
+              return const StickyNavigationIndicator();
+          }
+        }(),
+        items: originalItems,
+        autoSuggestBox: Builder(builder: (context) {
+          return AutoSuggestBox(
+            key: searchKey,
+            focusNode: searchFocusNode,
+            controller: searchController,
+            unfocusedColor: Colors.transparent,
+            // also need to include sub items from [PaneItemExpander] items
+            items: <PaneItem>[
+              ...originalItems
+                  .whereType<PaneItemExpander>()
+                  .expand<PaneItem>((item) {
+                return [
+                  item,
+                  ...item.items.whereType<PaneItem>(),
+                ];
+              }),
+              ...originalItems
+                  .where(
+                    (item) => item is PaneItem && item is! PaneItemExpander,
+                  )
+                  .cast<PaneItem>(),
+            ].map((item) {
+              assert(item.title is Text);
+              final text = (item.title as Text).data!;
+              return AutoSuggestBoxItem(
+                label: text,
+                value: text,
+                onSelected: () {
+                  item.onTap?.call();
+                  searchController.clear();
+                  searchFocusNode.unfocus();
+                  final view = NavigationView.of(context);
+                  if (view.compactOverlayOpen) {
+                    view.compactOverlayOpen = false;
+                  } else if (view.minimalPaneOpen) {
+                    view.minimalPaneOpen = false;
+                  }
+                },
+              );
+            }).toList(),
+            trailingIcon: IgnorePointer(
+              child: IconButton(
+                onPressed: () {},
+                icon: const Icon(FluentIcons.search),
               ),
             ),
-          ),*/
-          displayMode: appTheme.displayMode,
-          indicator: () {
-            switch (appTheme.indicator) {
-              case NavigationIndicators.end:
-                return const EndNavigationIndicator();
-              case NavigationIndicators.sticky:
-              default:
-                return const StickyNavigationIndicator();
-            }
-          }(),
-          items: items,
-          autoSuggestBox: TextBox(
-            key: key,
-            controller: searchController,
-            placeholder: '搜索',
-            focusNode: searchFocusNode,
-          ),
-          autoSuggestBoxReplacement: const Icon(FluentIcons.search),
-          footerItems: searchValue.isNotEmpty ? [] : footerItems),
-      onOpenSearch: () {
-        searchFocusNode.requestFocus();
-      },
+            placeholder: 'Search',
+          );
+        }),
+        autoSuggestBoxReplacement: const Icon(FluentIcons.search),
+        footerItems: footerItems,
+      ),
+      onOpenSearch: searchFocusNode.requestFocus,
     );
   }
 
@@ -177,7 +272,7 @@ class _MainPageState extends State<MainPage> with WindowListener {
   @override
   void onWindowClose() async {
     bool isPreventClose = await windowManager.isPreventClose();
-    if (isPreventClose) {
+    if (isPreventClose && mounted) {
       showDialog(
           context: context,
           builder: (_) {
@@ -200,16 +295,6 @@ class _MainPageState extends State<MainPage> with WindowListener {
             );
           });
     }
-  }
-
-  List<NavigationPaneItem> _getNavigationPane() {
-    return [
-      PaneItem(
-        icon: const Icon(FluentIcons.home),
-        title: const Text('首页'),
-        body: HomePage(),
-      )
-    ];
   }
 }
 

@@ -8,6 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   screen_retriever
   sqlite3_flutter_libs
   system_theme
+  url_launcher_windows
   window_manager
 )
 

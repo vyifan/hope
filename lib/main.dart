@@ -1,13 +1,21 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart' as flutter_acrylic;
+import 'package:hope/screens/settings.dart';
+import 'package:hope/startup.dart';
 import 'package:provider/provider.dart';
 import 'package:system_theme/system_theme.dart';
+import 'package:url_strategy/url_strategy.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'screens/index.dart';
+import 'app/index.dart';
+import 'screens/app.dart';
+import 'screens/compress.dart';
+import 'screens/home.dart';
 import 'theme.dart';
 import 'utils/platform_util.dart';
+
+const String appTitle = 'Lunk Box';
 
 /// Checks if the current environment is a desktop environment.
 bool get isDesktop {
@@ -30,7 +38,7 @@ void main() async {
     SystemTheme.accentColor.load();
   }
 
-  //setup();
+  setup();
   /*await database.into(database.tagTable)
       .insert(TagTableCompanion.insert(name: '浏览器', type: TagType.shortcut));
 
@@ -39,7 +47,7 @@ void main() async {
 
   //await FakeData.fake();
 
-  // setPathUrlStrategy();
+  setPathUrlStrategy();
 
   if (isDeskTop) {
     await flutter_acrylic.Window.initialize();
@@ -57,5 +65,5 @@ void main() async {
       await windowManager.setSkipTaskbar(false);
     });
   }
-  runApp(AppPage());
+  runApp(const MyApp());
 }
