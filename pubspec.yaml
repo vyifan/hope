@@ -54,6 +54,8 @@ dependencies:
   process_runner: ^4.1.2
   flash: ^3.0.5+1
   flutter_syntax_view: ^4.0.0
+  yaml: ^3.1.2
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
